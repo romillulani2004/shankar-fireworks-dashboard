@@ -104,10 +104,27 @@ button,.filebtn{border:0;border-radius:10px;padding:11px 14px;font:inherit;font-
 <p class="note">Apne paper se item ka naam, company aur price bhar kar Save dabao. Data Firebase mein save hota hai aur doosre phones par live update ho sakta hai.</p>
 </section>
 
-<section class="card">
-<h2>🔎 Product Search</h2>
-<div class="searchbox"><span class="searchicon">⌕</span><input id="search" type="search" placeholder="Naam ya company se search karo..." autocomplete="off"></div>
-</section>
+  <section class="card">
+  <h2>🔎 Product Search</h2>
+
+  <div class="searchbox">
+    <span class="searchicon">⌕</span>
+    <input id="search" type="search"
+      placeholder="Naam ya company se search karo..."
+      autocomplete="off">
+  </div>
+
+  <div id="categoryButtons" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">
+    <button type="button" class="secondary" data-category="All">All</button>
+    <button type="button" class="secondary" data-category="Anar">Anar</button>
+    <button type="button" class="secondary" data-category="Chakri">Chakri</button>
+    <button type="button" class="secondary" data-category="Rocket">Rocket</button>
+    <button type="button" class="secondary" data-category="Phuljhari">Phuljhari</button>
+    <button type="button" class="secondary" data-category="Bomb">Bomb</button>
+    <button type="button" class="secondary" data-category="Flower Pot">Flower Pot</button>
+    <button type="button" class="secondary" data-category="Others">Others</button>
+  </div>
+  </section>
 
 <section class="card">
 <div class="list-head"><h2 style="margin:0">📋 Tumhari Product List</h2><span id="count">0 products</span></div>
