@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#14532d">
+<title>Crackers Shop – Product Finder</title>
+<style>
+:root{--green:#14532d;--green2:#166534;--bg:#f3f7f3;--card:#fff;--text:#17211a;--muted:#647067;--border:#dce5dd;--red:#b42318}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:linear-gradient(135deg,#14532d,#15803d);color:white;padding:22px 16px 20px}
+.wrap{max-width:850px;margin:auto}
+h1{font-size:23px;margin:0 0 5px}
+header p{margin:0;color:#e1f4e5;font-size:14px}
+main{max-width:850px;margin:16px auto;padding:0 12px 30px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:15px;margin-bottom:14px;box-shadow:0 3px 12px #12331a08}
+h2{font-size:17px;margin:0 0 12px}
+label{display:block;font-size:13px;font-weight:650;margin:0 0 5px}
+input{width:100%;min-width:0;border:1px solid #cbd5ce;border-radius:10px;padding:12px;font:inherit;font-size:16px;background:white;color:var(--text)}
+input:focus{outline:2px solid #86c99a;border-color:var(--green2)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.full{grid-column:1/-1}
+button,.filebtn{border:0;border-radius:10px;padding:11px 14px;font:inherit;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.primary{background:var(--green);color:#fff;width:100%;margin-top:12px}
+.secondary{background:#e7f2e9;color:var(--green)}
+.danger{background:#fff0ef;color:var(--red)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.searchbox{position:relative}
+.searchbox input{padding-left:42px}
+.searchicon{position:absolute;left:14px;top:12px;font-size:18px}
+.stats{display:flex;gap:8px;margin-top:12px}
+.stat{background:#ffffff20;border:1px solid #ffffff38;padding:8px 11px;border-radius:10px;font-size:13px}
+.stat b{font-size:17px;display:block}
+.list-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+#count{color:var(--muted);font-size:13px}
+.product{border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:9px;background:#fff}
+.product-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.pname{font-weight:750;font-size:16px;overflow-wrap:anywhere}
+.company{font-size:13px;color:var(--muted);margin-top:3px;overflow-wrap:anywhere}
+.price{font-size:18px;font-weight:800;white-space:nowrap;color:var(--green)}
+.product-actions{display:flex;gap:7px;margin-top:10px}
+.product-actions button{font-size:13px;padding:7px 10px}
+.empty{text-align:center;padding:25px 12px;color:var(--muted);line-height:1.6}
+.note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:10px}
+#importFile{display:none}
+@media(min-width:620px){.form-grid{grid-template-columns:1.4fr 1fr 1fr}.full{grid-column:auto}.primary{width:auto}.product{display:flex;justify-content:space-between;align-items:center;gap:12px}.product-top{flex:1}.product-actions{margin-top:0}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<h1>🎆 Crackers Shop</h1>
+<p>Product Finder · Naam, company aur price ek jagah</p>
+<div class="stats">
+<div class="stat"><b id="totalCount">0</b>Products</div>
+<div class="stat"><b id="companyCount">0</b>Companies</div>
+</div>
+</div></header>
+<main>
+<section class="card">
+<h2 id="formTitle">➕ Naya product add karo</h2>
+<form id="productForm">
+<div class="grid form-grid">
+<div><label for="name">Product / Item Name *</label><input id="name" required maxlength="120" placeholder="Jaise: Sky Shot" autocomplete="off"></div>
+<div><label for="company">Company</label><input id="company" maxlength="100" placeholder="Company ka naam" autocomplete="off"></div>
+<div><label for="price">Price (₹) *</label><input id="price" required type="number" min="0" step="0.01" placeholder="Jaise: 500"></div>
+</div>
+<button class="primary" id="saveBtn" type="submit">＋ Product Save Karo</button>
+<button class="secondary" id="cancelEdit" type="button" hidden>Cancel Edit</button>
+</form>
+<p class="note">Apne paper se item ka naam, company aur price bhar kar Save dabao. Data isi browser mein save rahega.</p>
+</section>
+
+<section class="card">
+<h2>🔎 Product Search</h2>
+<div class="searchbox"><span class="searchicon">⌕</span><input id="search" type="search" placeholder="Naam ya company se search karo..." autocomplete="off"></div>
+</section>
+
+<section class="card">
+<div class="list-head"><h2 style="margin:0">📋 Tumhari Product List</h2><span id="count">0 products</span></div>
+<div id="products"></div>
+<div class="actions">
+<button class="secondary" id="exportBtn" type="button">⬇️ Backup Download</button>
+<label class="filebtn secondary" for="importFile">⬆️ List Import</label>
+<input id="importFile" type="file" accept=".csv,text/csv">
+</div>
+<p class="note">Tip: Backup Download se CSV file save kar lena. Phone/browser ka data clear ho jaaye toh backup se list wapas import kar sakte ho.</p>
+</section>
+</main>
+<script>
+const KEY='crackers_shop_products_v1';
+let products=[];
+let editingId=null;
+try{products=JSON.parse(localStorage.getItem(KEY)||'[]');if(!Array.isArray(products))products=[];}catch(e){products=[];}
+const $=id=>document.getElementById(id);
+function persist(){localStorage.setItem(KEY,JSON.stringify(products));render();}
+function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function money(n){return '₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2});}
+function render(){
+ const q=$('search').value.trim().toLocaleLowerCase();
+ const filtered=products.filter(p=>[p.name,p.company,String(p.price)].some(v=>String(v||'').toLocaleLowerCase().includes(q)));
+ $('totalCount').textContent=products.length;
+ $('companyCount').textContent=new Set(products.map(p=>p.company.trim()).filter(Boolean)).size;
+ $('count').textContent=`${filtered.length} / ${products.length} products`;
+ if(!filtered.length){$('products').innerHTML=`<div class="empty">${products.length?'Is search se koi product nahi mila.':'Abhi list khaali hai.<br>Upar apna pehla product add karo.'}</div>`;return;}
+ $('products').innerHTML=filtered.sort((a,b)=>a.name.localeCompare(b.name,'en',{sensitivity:'base'})).map(p=>`
+ <article class="product">
+  <div class="product-top"><div><div class="pname">${escapeHtml(p.name)}</div><div class="company">${escapeHtml(p.company||'Company nahi dali')}</div></div><div class="price">${money(p.price)}</div></div>
+  <div class="product-actions"><button class="secondary" onclick="editProduct('${p.id}')">✏️ Edit</button><button class="danger" onclick="deleteProduct('${p.id}')">🗑️ Delete</button></div>
+ </article>`).join('');
+}
+$('productForm').addEventListener('submit',e=>{
+ e.preventDefault();
+ const name=$('name').value.trim(),company=$('company').value.trim(),price=$('price').value;
+ if(!name||price===''||Number(price)<0)return;
+ if(editingId){const p=products.find(x=>x.id===editingId);if(p)Object.assign(p,{name,company,price:Number(price)});}
+ else products.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random(),name,company,price:Number(price)});
+ persist();resetForm();$('search').value='';$('name').focus();
+});
+function editProduct(id){const p=products.find(x=>x.id===id);if(!p)return;editingId=id;$('name').value=p.name;$('company').value=p.company;$('price').value=p.price;$('formTitle').textContent='✏️ Product Edit Karo';$('saveBtn').textContent='Changes Save Karo';$('cancelEdit').hidden=false;window.scrollTo({top:0,behavior:'smooth'});}
+function deleteProduct(id){const p=products.find(x=>x.id===id);if(p&&confirm(`"${p.name}" delete karna hai?`)){products=products.filter(x=>x.id!==id);persist();if(editingId===id)resetForm();}}
+function resetForm(){editingId=null;$('productForm').reset();$('formTitle').textContent='➕ Naya product add karo';$('saveBtn').textContent='＋ Product Save Karo';$('cancelEdit').hidden=true;}
+$('cancelEdit').addEventListener('click',resetForm);
+$('search').addEventListener('input',render);
+$('exportBtn').addEventListener('click',()=>{
+ const rows=[['Product Name','Company','Price'],...products.map(p=>[p.name,p.company,p.price])];
+ const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
+ const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='crackers-shop-products.csv';a.click();URL.revokeObjectURL(a.href);
+});
+$('importFile').addEventListener('change',async e=>{
+ const file=e.target.files[0];if(!file)return;
+ const text=await file.text();
+ const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/).filter(x=>x.trim());
+ function parse(line){let out=[],v='',quoted=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'&&quoted&&line[i+1]==='"'){v+='"';i++;}else if(c==='"')quoted=!quoted;else if(c===','&&!quoted){out.push(v);v='';}else v+=c;}out.push(v);return out;}
+ const rows=lines.map(parse);const start=/product|item|name/i.test(rows[0][0]||'')?1:0;let added=0;
+ for(const r of rows.slice(start)){if(!r[0]?.trim()||r[2]==null||r[2].trim()===''||!Number.isFinite(Number(r[2])))continue;products.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random(),name:r[0].trim(),company:(r[1]||'').trim(),price:Number(r[2])});added++;}
+ if(added){persist();alert(`${added} products import ho gaye.`);}else alert('CSV format check karo: Product Name, Company, Price.');
+ e.target.value='';
+});
+render();
+</script>
+</body>
+</html>
