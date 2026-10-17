@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14532d">
+<title>Crackers Shop – Product Finder</title>
+<style>
+:root{--green:#14532d;--green2:#166534;--bg:#f3f7f3;--card:#fff;--text:#17211a;--muted:#647067;--border:#dce5dd;--red:#b42318}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:linear-gradient(135deg,#14532d,#15803d);color:white;padding:22px 16px 20px}
+.wrap{max-width:850px;margin:auto}
+h1{font-size:23px;margin:0 0 5px}
+header p{margin:0;color:#e1f4e5;font-size:14px}
+main{max-width:850px;margin:16px auto;padding:0 12px 30px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:15px;margin-bottom:14px;box-shadow:0 3px 12px #12331a08}
+h2{font-size:17px;margin:0 0 12px}
+label{display:block;font-size:13px;font-weight:650;margin:0 0 5px}
+input{width:100%;min-width:0;border:1px solid #cbd5ce;border-radius:10px;padding:12px;font:inherit;font-size:16px;background:white;color:var(--text)}
+input:focus{outline:2px solid #86c99a;border-color:var(--green2)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.full{grid-column:1/-1}
+button,.filebtn{border:0;border-radius:10px;padding:11px 14px;font:inherit;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.primary{background:var(--green);color:#fff;width:100%;margin-top:12px}
+.secondary{background:#e7f2e9;color:var(--green)}
+.danger{background:#fff0ef;color:var(--red)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.searchbox{position:relative}
+.searchbox input{padding-left:42px}
+.searchicon{position:absolute;left:14px;top:12px;font-size:18px}
+.stats{display:flex;gap:8px;margin-top:12px}
+.stat{background:#ffffff20;border:1px solid #ffffff38;padding:8px 11px;border-radius:10px;font-size:13px}
+.stat b{font-size:17px;display:block}
+.list-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+#count{color:var(--muted);font-size:13px}
+.product{border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:9px;background:#fff}
+.product-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.pname{font-weight:750;font-size:16px;overflow-wrap:anywhere}
+.company{font-size:13px;color:var(--muted);margin-top:3px;overflow-wrap:anywhere}
+.price{font-size:18px;font-weight:800;white-space:nowrap;color:var(--green)}
+.product-actions{display:flex;gap:7px;margin-top:10px}
+.product-actions button{font-size:13px;padding:7px 10px}
+.empty{text-align:center;padding:25px 12px;color:var(--muted);line-height:1.6}
+.note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:10px}
+#importFile{display:none}
+@media(max-width:619px){
+  header{padding:16px 14px}
+  h1{font-size:21px}
+  main{margin:10px auto;padding:0 10px 24px}
+  .card{padding:12px;border-radius:13px;margin-bottom:10px}
+  .grid,.form-grid{grid-template-columns:minmax(0,1fr);gap:10px}
+  .full{grid-column:auto}
+  input{font-size:16px;padding:12px;min-height:46px}
+  button,.filebtn{min-height:44px;touch-action:manipulation}
+  .primary{width:100%}
+  .stats{gap:6px}
+  .stat{padding:7px 9px}
+  .product-top{align-items:flex-start}
+  .price{font-size:16px}
+  .product-actions button{flex:1;min-height:40px}
+  .list-head{align-items:flex-start;flex-wrap:wrap}
+  .actions{display:grid;grid-template-columns:1fr}
+  .actions .filebtn{width:100%}
+  .note{overflow-wrap:anywhere}
+}
+@media(min-width:620px){.form-grid{grid-template-columns:1.4fr 1fr 1fr}.full{grid-column:auto}.primary{width:auto}.product{display:flex;justify-content:space-between;align-items:center;gap:12px}.product-top{flex:1}.product-actions{margin-top:0}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<h1>🎆 Crackers Shop</h1>
+<p>Product Finder · Naam, company aur price ek jagah</p>
+<div class="stats">
+<div class="stat"><b id="totalCount">0</b>Products</div>
+<div class="stat"><b id="companyCount">0</b>Companies</div>
+</div>
+</div></header>
+<main>
+<section class="card" id="authCard">
+<h2>🔐 Shop Owner Login</h2>
+<p class="note" style="margin-top:0">Apne Firebase Authentication wale email aur password se login karo.</p>
+<form id="loginForm">
+<div class="grid">
+<div class="full"><label for="email">Email</label><input id="email" type="email" required autocomplete="username" placeholder="Shop owner email"></div>
+<div class="full"><label for="password">Password</label><input id="password" type="password" required autocomplete="current-password" placeholder="Password"></div>
+</div>
+<button class="primary" id="loginBtn" type="submit">Login Karo</button>
+<p id="authMessage" role="status" class="note"></p>
+</form>
+</section>
+<div id="dashboard" hidden>
+<section class="card">
+<h2 id="formTitle">➕ Naya product add karo</h2>
+<form id="productForm">
+<div class="grid form-grid">
+<div><label for="name">Product / Item Name *</label><input id="name" required maxlength="120" placeholder="Jaise: Sky Shot" autocomplete="off"></div>
+<div><label for="company">Company</label><input id="company" maxlength="100" placeholder="Company ka naam" autocomplete="off"></div>
+<div><label for="price">Price (₹) *</label><input id="price" required type="number" min="0" step="0.01" placeholder="Jaise: 500"></div>
+</div>
+<button class="primary" id="saveBtn" type="submit">＋ Product Save Karo</button>
+<button class="secondary" id="cancelEdit" type="button" hidden>Cancel Edit</button>
+</form>
+<p class="note">Apne paper se item ka naam, company aur price bhar kar Save dabao. Data Firebase mein save hota hai aur doosre phones par live update ho sakta hai.</p>
+</section>
+
+<section class="card">
+<h2>🔎 Product Search</h2>
+<div class="searchbox"><span class="searchicon">⌕</span><input id="search" type="search" placeholder="Naam ya company se search karo..." autocomplete="off"></div>
+</section>
+
+<section class="card">
+<div class="list-head"><h2 style="margin:0">📋 Tumhari Product List</h2><span id="count">0 products</span></div>
+<div id="products"></div>
+<div class="actions">
+<button class="secondary" id="exportBtn" type="button">⬇️ Backup Download</button>
+<label class="filebtn secondary" for="importFile">⬆️ List Import</label>
+<input id="importFile" type="file" accept=".csv,text/csv">
+</div>
+<p class="note">Tip: Backup Download se CSV file save kar lena. Phone/browser ka data clear ho jaaye toh backup se list wapas import kar sakte ho.</p>
+</section>
+</div>
+</main>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query, where } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDfq3YIE6Nwpq_I7F2yhSJyyJdWc7vEj0M",
+  authDomain: "shankar-fireworks-list.firebaseapp.com",
+  projectId: "shankar-fireworks-list",
+  storageBucket: "shankar-fireworks-list.firebasestorage.app",
+  messagingSenderId: "799968504760",
+  appId: "1:799968504760:web:9b21c319a4e63e6cec7d4d",
+  measurementId: "G-X89JY4LFC8"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+let products = [];
+let unsubscribeProducts = null;
+let editingId = null;
+let busy = false;
+const $ = id => document.getElementById(id);
+const setMessage = (message, error=false) => { $('authMessage').textContent = message; $('authMessage').style.color = error ? '#b42318' : '#166534'; };
+function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function money(n){return '₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2});}
+function setBusy(value){busy=value; $('saveBtn').disabled=value; $('loginBtn').disabled=value;}
+function listenToProducts(){
+  if(unsubscribeProducts){unsubscribeProducts();unsubscribeProducts=null;}
+  const q = query(collection(db,'products'), where('ownerUid','==',auth.currentUser.uid));
+  unsubscribeProducts = onSnapshot(q, snap => {
+    products = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    render();
+  }, err => {
+    $('products').innerHTML='<div class="empty">Live update nahi ho raha. Internet aur Firestore Rules check karo.<br>'+escapeHtml(err.message)+'</div>';
+  });
+}
+function render(){
+ const q=$('search').value.trim().toLocaleLowerCase();
+ const filtered=products.filter(p=>[p.name,p.company,String(p.price)].some(v=>String(v||'').toLocaleLowerCase().includes(q)));
+ $('totalCount').textContent=products.length;
+ $('companyCount').textContent=new Set(products.map(p=>(p.company||'').trim()).filter(Boolean)).size;
+ $('count').textContent=`${filtered.length} / ${products.length} products`;
+ if(!filtered.length){$('products').innerHTML=`<div class="empty">${products.length?'Is search se koi product nahi mila.':'Abhi list khaali hai.<br>Upar apna pehla product add karo.'}</div>`;return;}
+ $('products').innerHTML=filtered.sort((a,b)=>a.name.localeCompare(b.name,'en',{sensitivity:'base'})).map(p=>`
+ <article class="product"><div class="product-top"><div><div class="pname">${escapeHtml(p.name)}</div><div class="company">${escapeHtml(p.company||'Company nahi dali')}</div></div><div class="price">${money(p.price)}</div></div>
+ <div class="product-actions"><button class="secondary" data-edit="${p.id}">✏️ Edit</button><button class="danger" data-delete="${p.id}">🗑️ Delete</button></div></article>`).join('');
+}
+function resetForm(){editingId=null;$('productForm').reset();$('formTitle').textContent='➕ Naya product add karo';$('saveBtn').textContent='＋ Product Save Karo';$('cancelEdit').hidden=true;}
+function editProduct(id){const p=products.find(x=>x.id===id);if(!p)return;editingId=id;$('name').value=p.name;$('company').value=p.company||'';$('price').value=p.price;$('formTitle').textContent='✏️ Product Edit Karo';$('saveBtn').textContent='Changes Save Karo';$('cancelEdit').hidden=false;window.scrollTo({top:0,behavior:'smooth'});}
+async function deleteProduct(id){const p=products.find(x=>x.id===id);if(!p||!confirm(`"${p.name}" delete karna hai?`))return;try{await deleteDoc(doc(db,'products',id));products=products.filter(x=>x.id!==id);render();if(editingId===id)resetForm();}catch(e){alert('Delete nahi hua: '+e.message);}}
+$('loginForm').addEventListener('submit',async e=>{
+ e.preventDefault();setBusy(true);setMessage('Login ho raha hai...');
+ try{await signInWithEmailAndPassword(auth,$('email').value.trim(),$('password').value);setMessage('Login successful.');}
+ catch(err){setMessage('Login nahi hua. Email/password check karo. Agar Email/Password sign-in enable nahi hai, Firebase Authentication → Sign-in method mein enable karo.',true);}
+ finally{setBusy(false);}
+});
+onAuthStateChanged(auth,user=>{
+ $('authCard').hidden=!!user; $('dashboard').hidden=!user;
+ if(user){$('authMessage').textContent='';listenToProducts();}
+ else {if(unsubscribeProducts){unsubscribeProducts();unsubscribeProducts=null;}products=[];render();}
+});
+$('productForm').addEventListener('submit',async e=>{
+ e.preventDefault();if(!auth.currentUser)return;
+ const name=$('name').value.trim(),company=$('company').value.trim(),price=$('price').value;
+ if(!name||price===''||Number(price)<0)return;
+ setBusy(true);
+ try{
+  if(editingId){const existing=products.find(x=>x.id===editingId);if(!existing)throw new Error('Product nahi mila');await updateDoc(doc(db,'products',editingId),{name,company,price:Number(price),ownerUid:auth.currentUser.uid});Object.assign(existing,{name,company,price:Number(price)});}
+  else {const result=await addDoc(collection(db,'products'),{name,company,price:Number(price),ownerUid:auth.currentUser.uid,createdAt:new Date().toISOString()});products.push({id:result.id,name,company,price:Number(price),ownerUid:auth.currentUser.uid});}
+  render();resetForm();$('search').value='';$('name').focus();
+ }catch(err){alert('Save nahi hua. Firestore Rules publish kiye hain ya nahi check karo.\n'+err.message);}
+ finally{setBusy(false);}
+});
+$('products').addEventListener('click',e=>{const edit=e.target.closest('[data-edit]');const del=e.target.closest('[data-delete]');if(edit)editProduct(edit.dataset.edit);if(del)deleteProduct(del.dataset.delete);});
+$('cancelEdit').addEventListener('click',resetForm);
+$('search').addEventListener('input',render);
+$('exportBtn').addEventListener('click',()=>{
+ const rows=[['Product Name','Company','Price'],...products.map(p=>[p.name,p.company,p.price])];
+ const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
+ const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='crackers-shop-products.csv';a.click();URL.revokeObjectURL(a.href);
+});
+$('importFile').addEventListener('change',async e=>{
+ const file=e.target.files[0];if(!file)return;const txt=await file.text();const lines=txt.replace(/^\uFEFF/,'').split(/\r?\n/).filter(x=>x.trim());
+ function parse(line){let out=[],v='',quoted=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'&&quoted&&line[i+1]==='"'){v+='"';i++;}else if(c==='"')quoted=!quoted;else if(c===','&&!quoted){out.push(v);v='';}else v+=c;}out.push(v);return out;}
+ const rows=lines.map(parse);const start=/product|item|name/i.test(rows[0]?.[0]||'')?1:0;let added=0;
+ try{for(const r of rows.slice(start)){if(!r[0]?.trim()||r[2]==null||r[2].trim()===''||!Number.isFinite(Number(r[2])))continue;const item={name:r[0].trim(),company:(r[1]||'').trim(),price:Number(r[2]),ownerUid:auth.currentUser.uid,createdAt:new Date().toISOString()};const result=await addDoc(collection(db,'products'),item);products.push({id:result.id,...item});added++;}render();alert(`${added} products import ho gaye.`);}catch(err){alert('Import mein problem: '+err.message);}e.target.value='';
+});
+// Add a sign-out control inside the header after login.
+const signout=document.createElement('button');signout.className='secondary';signout.textContent='Logout';signout.style.marginTop='12px';signout.hidden=true;signout.id='logoutBtn';document.querySelector('header .wrap').appendChild(signout);
+onAuthStateChanged(auth,user=>{signout.hidden=!user;});
+signout.addEventListener('click',async()=>{await signOut(auth);$('password').value='';setMessage('Logout ho gaya.');});
+</script>
+</body>
+</html>
